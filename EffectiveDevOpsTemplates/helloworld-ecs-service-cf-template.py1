@@ -1,40 +1,43 @@
 """Generating CloudFormation template."""
 
 from troposphere.ecs import (
-    TaskDefinition,
-    ContainerDefinition
-)
+        TaskDefinition,
+        ContainerDefinition
+        )
+
 from troposphere import ecs
+
 from awacs.aws import (
-    Allow,
-    Statement,
-    Principal,
-    Policy
-)
+        Allow,
+        Statement,
+        Principal,
+        Policy,
+        )
+
 from troposphere.iam import Role
 
 from troposphere import (
-    Parameter,
-    Ref,
-    Template,
-    Join,
-    ImportValue,
-    Select,
-    Split,
-)
+        Parameter,
+        Ref,
+        Template,
+        Join,
+        ImportValue,
+        Select,
+        Split,
+        )
 
 from awacs.sts import AssumeRole
 
 t = Template()
 
-t.add_description("Effective DevOps in AWS: ECS service - Helloworld")
+t.add_description("Effective DevOps in AWS: ECS service - HelloWorld")
 
 t.add_parameter(Parameter(
     "Tag",
     Type="String",
     Default="latest",
     Description="Tag to deploy"
-))
+    ))
 
 t.add_resource(TaskDefinition(
     "task",
@@ -54,9 +57,9 @@ t.add_resource(TaskDefinition(
             Name="helloworld",
             PortMappings=[ecs.PortMapping(
                 ContainerPort=3000)]
-        )
-    ],
-))
+            )
+        ],
+    ))
 
 t.add_resource(Role(
     "ServiceRole",
@@ -66,13 +69,13 @@ t.add_resource(Role(
                 Effect=Allow,
                 Action=[AssumeRole],
                 Principal=Principal("Service", ["ecs.amazonaws.com"])
-            )
-        ]
-    ),
+                )
+            ]
+        ),
     Path="/",
     ManagedPolicyArns=[
         'arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole']
-))
+    ))
 
 t.add_resource(ecs.Service(
     "service",
@@ -81,8 +84,8 @@ t.add_resource(ecs.Service(
             "-",
             [Select(0, Split("-", Ref("AWS::StackName"))),
                 "cluster-id"]
-        )
-    ),
+            )
+        ),
     DesiredCount=1,
     TaskDefinition=Ref("task"),
     LoadBalancers=[ecs.LoadBalancer(
@@ -93,10 +96,10 @@ t.add_resource(ecs.Service(
                 "-",
                 [Select(0, Split("-", Ref("AWS::StackName"))),
                     "alb-helloworld-target-group"]
+                ),
             ),
-        ),
-    )],
+        )],
     Role=Ref("ServiceRole")
-))
+    ))
 
 print(t.to_json())
