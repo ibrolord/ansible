@@ -78,8 +78,16 @@ t.add_resource(ec2.SecurityGroup(
 #'''
 ud = Base64(Join('\n', [
     "#!/bin/bash",
+    "sudo yum -y update",
     "sudo yum install --enablerepo=epel -y git",
     "pip install ansible",
+    "sudo yum install -y java-1.8.0",
+    "sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo",
+    "sudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key",
+    "sudo yum install -y jenkins ",
+    "sudo chkconfig --add jenkins",
+    "sudo service jenkins start",
+    "pip install jenkins",
     AnsiblePullCmd,
     "echo '*/10 * * * * {}' > /etc/cron.d/ansible-pull".format(AnsiblePullCmd)
 #    "wget http://bit.ly/2vESNuc -O /home/ec2-user/helloworld.js",
@@ -87,6 +95,18 @@ ud = Base64(Join('\n', [
 #    "start helloworld"
 ]))
 #'''
+
+t.add_resource(IAMPolicy("Policy",
+    PolicyName="AllowCodePipeline",
+    PolicyDocument=Policy(
+        Statement=[
+            Statement(Effect=Allow,
+                Action=[Action("codepipeline", "*")],
+                Resource=["*"])
+            ]
+        ),
+    Roles=[Ref("Role")]
+    ))
 
 t.add_resource(Role(
     "Role",
