@@ -19,7 +19,7 @@ t.add_description("Effective DevOps in AWS: Turn on CLoudTrail and log to S3")
 
 t.add_resource(Bucket(
     "S3Bucket",
-    DeletePolicy="Retain"
+    DeletionPolicy="Retain"
     ))
 
 t.add_resource(BucketPolicy(
@@ -27,16 +27,15 @@ t.add_resource(BucketPolicy(
     Bucket=Ref("S3Bucket"),
     PolicyDocument={
         "Statement": [{
-            "Action": "s3.GetBucketAcl",
+            "Action": "s3:GetBucketAcl",
             "Effect": "Allow",
             "Principal": {
                 "Service": "cloudtrail.amazonaws.com"
                 },
             "Resource": Join("", ["arn:aws:s3:::", Ref("S3Bucket")
                 ])
-            }, 
-            {
-            "Action": "s3.PutObject",
+            },    {
+            "Action": "s3:PutObject",
             "Effect": "Allow",
             "Principal": {
                 "Service": "cloudtrail.amazonaws.com"
@@ -57,7 +56,7 @@ t.add_resource(Trail(
     S3BucketName=Ref("S3Bucket"),
     IsLogging=True,
     EnableLogFileValidation=True,
-    IncludeGloablServiceEvents=True,
+    IncludeGlobalServiceEvents=True,
     IsMultiRegionTrail=True,
     DependsOn=["BucketPolicy"]
     ))
