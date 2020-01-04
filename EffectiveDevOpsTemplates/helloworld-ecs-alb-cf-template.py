@@ -20,6 +20,11 @@ from awacs.aws import Allow, Policy, Principal, Statement
 
 from awacs.s3 import PutObject, ARN
 
+from troposphere.cloudwatch import (
+        Alarm,
+        MetricDimension,
+        )
+
 from troposphere.s3 import (
         Bucket,
         BucketPolicy,
@@ -125,6 +130,48 @@ t.add_resource(elb.Listener(
         Type="forward",
         TargetGroupArn=Ref("TargetGroup")
     )]
+))
+
+t.add_resource(Alarm(
+    "ELBHTTP5xxs",
+    AlarmDescription="Alarm if HTTP 5xxs too high",
+    Namespace="AWS/ELB",
+    MetricName="HTTPCode_Backend_5XX",
+    Dimension=[
+        MetricDimension(
+            Name="LoadBalancerName",
+            Value=Ref("LoadBalancer")
+            ),
+        ],
+    Statistic="Average",
+    Period="60",
+    EvaluationPeriods="3",
+    Threshold="30",
+    ComparisonOperator="GreaterThanOrEqualToThreshold",
+    AlarmActions=["arn:aws:sns:us-east-1:256218820153:alert-sms"],
+    OKActions=["arn:aws:sns:us-east-1:256218820153:alert-sms"],
+    InsufficientDataActions=[],
+    ))
+
+t.add_resource(Alarm(
+    "ELBHLatency",
+    AlarmDescription="Alarm if Latency too high",
+    Namespace="AWS/ELB",
+    MetricName="Latency",
+    Dimensions=[
+        MetricDimension(
+            Name="LoadBalancerName",
+            Value=Ref("LoadBalancer")
+            ),
+        ],
+    Statistic="Average",
+    Period="60",
+    EvaluationPeriods="5",
+    Threshold="0.5",
+    ComparisonOperator="GreaterThanOrEqualToThreshold",
+    AlarmActions=["arn:aws:sns:us-east-1:256218820153:alert-sms"],
+    OKActions=["arn:aws:sns:us-east-1:256218820153:alert-sms"],
+    InsufficientDataActions=[],
 ))
 
 t.add_output(Output(
