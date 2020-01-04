@@ -4,7 +4,7 @@ from troposphere import (
         Template,
         )
 
-from troposphere import (
+from troposphere.iam import (
         Group,
         )
 
