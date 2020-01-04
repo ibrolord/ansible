@@ -308,7 +308,7 @@
                         "ToPort": 65535
                     },
                     {
-                        "CidrIp": "142.182.142.220/32",
+                        "CidrIp": "142.122.81.160/32",
                         "FromPort": "22",
                         "IpProtocol": "tcp",
                         "ToPort": "22"

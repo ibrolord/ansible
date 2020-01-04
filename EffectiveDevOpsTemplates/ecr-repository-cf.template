@@ -1,4 +1,5 @@
 {
+    "Description": "Effective DevOps in AWS: ECR Repository",
     "Outputs": {
         "Repository": {
             "Description": "ECR repository",

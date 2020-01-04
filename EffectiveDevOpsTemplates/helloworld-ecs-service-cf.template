@@ -1,5 +1,5 @@
 {
-    "Description": "Effective DevOps in AWS: ECS service - HelloWorld",
+    "Description": "Effective DevOps in AWS: ECS service - Helloworld",
     "Parameters": {
         "Tag": {
             "Default": "latest",
@@ -80,7 +80,7 @@
                                                 }
                                             ]
                                         },
-                                        "alb-helloworld-target-group"
+                                        "alb-target-group"
                                     ]
                                 ]
                             }
