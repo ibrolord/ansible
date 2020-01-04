@@ -276,6 +276,26 @@ t.add_resource(Alarm(
     InsufficientDataActions=[Ref("ScaleUpPolicy")],
 ))
 
+t.add_resource(IAMPolicy(
+    "MonitoringPolicy",
+    PolicyName="AllowSendingDataForMonitoring",
+    PolicyDocument=Policy(
+        Statement=[
+            Statement(
+                Effect=Allow,
+                Action=[
+                    Action("cloudwatch", "Put*"),
+                    Action("logs", "Create*"),
+                    Action("logs", "Put*"),
+                    Action("logs", "Describe*"),
+                    Action("events", "Put*"),
+                    ],
+                Resource=["*"])
+            ]
+        ),
+    Roles=[Ref("Roles")]
+    ))
+
 t.add_output(Output(
     "WebUrl",
     Description="Application endpoint",
