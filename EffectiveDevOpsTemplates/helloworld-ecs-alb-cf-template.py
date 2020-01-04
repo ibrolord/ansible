@@ -137,7 +137,7 @@ t.add_resource(Alarm(
     AlarmDescription="Alarm if HTTP 5xxs too high",
     Namespace="AWS/ELB",
     MetricName="HTTPCode_Backend_5XX",
-    Dimension=[
+    Dimensions=[
         MetricDimension(
             Name="LoadBalancerName",
             Value=Ref("LoadBalancer")
