@@ -117,7 +117,7 @@ for a in accessibility:
             CidrBlock="0.0.0.0/0",
             ))
 
-t.add_resource(Route
+t.add_resource(Route(
     "RouteTablePublicInternetRoute",
     GatewayId=Ref("InternetGateway"),
     DestinationCidrBlock="0.0.0.0/0",
