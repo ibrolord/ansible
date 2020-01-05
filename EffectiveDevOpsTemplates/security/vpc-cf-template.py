@@ -124,7 +124,7 @@ t.add_resource(Route(
     RouteTableId=Ref("PublicRouteTable"),
 ))
         
-t.add_resource(EIP
+t.add_resource(EIP(
     "EIP",
     Domain="VPC"
 ))
