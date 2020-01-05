@@ -1,0 +1,139 @@
+{
+    "Description": "Effective DevOps in AWS: User Groups",
+    "Resources": {
+        "Admins": {
+            "Properties": {
+                "GroupName": "Admins",
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AdministratorAccess"
+                ]
+            },
+            "Type": "AWS::IAM::Group"
+        },
+        "AllUsers": {
+            "Properties": {
+                "GroupName": "AllUsers",
+                "ManagedPolicyArns": [
+                    {
+                        "Ref": "CommonIamPolicy"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Group"
+        },
+        "CommonIamPolicy": {
+            "Properties": {
+                "Description": "Common policy to manage IAM resources",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "iam:GetAccountPasswordPolicy",
+                                "iam:ListUsers",
+                                "iam:ListMFADevices",
+                                "iam:ListVirtualMFADevices"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "Action": [
+                                "iam:CreateVirtualMFADevice"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": [
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:iam::",
+                                            {
+                                                "Ref": "AWS::AccountId"
+                                            },
+                                            ":mfa/${aws:username}"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "Condition": {
+                                "Null": {
+                                    "aws:MultiFactorAuthAge": "true"
+                                }
+                            },
+                            "Effect": "Deny",
+                            "NotAction": [
+                                "iam:ChangePassword",
+                                "iam:CreateVirtualMFADevice",
+                                "iam:EnableMFADevice",
+                                "iam:GetUser",
+                                "iam:ListMFADevices",
+                                "iam:ListUsers",
+                                "iam:ListVirtualMFADevices"
+                            ],
+                            "Resource": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "Condition": {
+                                "NumericGreaterThan": {
+                                    "aws:MultiFactorAuthAge": "43200"
+                                }
+                            },
+                            "Effect": "Deny",
+                            "NotAction": [
+                                "iam:ChangePassword",
+                                "iam:CreateVirtualMFADevice",
+                                "iam:EnableMFADevice",
+                                "iam:GetUser",
+                                "iam:ListMFADevices",
+                                "iam:ListUsers",
+                                "iam:ListVirtualMFADevices"
+                            ],
+                            "Resource": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "Action": [
+                                "iam:ChangePassword",
+                                "iam:CreateAccessKey",
+                                "iam:CreateLoginProfile",
+                                "iam:DeleteAccessKey",
+                                "iam:DeleteLoginProfile",
+                                "iam:EnableMFADevice",
+                                "iam:GetAccessKeyLastUsed",
+                                "iam:GetLoginProfile",
+                                "iam:GetUser",
+                                "iam:ListAccessKeys",
+                                "iam:UpdateAccessKey",
+                                "iam:UpdateLoginProfile"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": [
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:iam::",
+                                            {
+                                                "Ref": "AWS::AccountId"
+                                            },
+                                            ":user/${aws:username}"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::ManagedPolicy"
+        }
+    }
+}

@@ -1,0 +1,82 @@
+{
+    "Description": "Effective DevOps in AWS: Turn on CLoudTrail and log to S3",
+    "Resources": {
+        "BucketPolicy": {
+            "Properties": {
+                "Bucket": {
+                    "Ref": "S3Bucket"
+                },
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "s3:GetBucketAcl",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "cloudtrail.amazonaws.com"
+                            },
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        "arn:aws:s3:::",
+                                        {
+                                            "Ref": "S3Bucket"
+                                        }
+                                    ]
+                                ]
+                            }
+                        },
+                        {
+                            "Action": "s3:PutObject",
+                            "Condition": {
+                                "StringEquals": {
+                                    "s3:x-amz-acl": "bucket-owner-full-control"
+                                }
+                            },
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "cloudtrail.amazonaws.com"
+                            },
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        "arn:aws:s3:::",
+                                        {
+                                            "Ref": "S3Bucket"
+                                        },
+                                        "/AWSLogs/",
+                                        {
+                                            "Ref": "AWS::AccountId"
+                                        },
+                                        "/*"
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            "Type": "AWS::S3::BucketPolicy"
+        },
+        "S3Bucket": {
+            "DeletionPolicy": "Retain",
+            "Type": "AWS::S3::Bucket"
+        },
+        "Trail": {
+            "DependsOn": [
+                "BucketPolicy"
+            ],
+            "Properties": {
+                "EnableLogFileValidation": "true",
+                "IncludeGlobalServiceEvents": "true",
+                "IsLogging": "true",
+                "IsMultiRegionTrail": "true",
+                "S3BucketName": {
+                    "Ref": "S3Bucket"
+                }
+            },
+            "Type": "AWS::CloudTrail::Trail"
+        }
+    }
+}

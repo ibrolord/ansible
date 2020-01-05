@@ -1,0 +1,12 @@
+aws_requests_auth-0.3.2.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+aws_requests_auth-0.3.2.dist-info/LICENSE,sha256=AxLJDl36QKUd3_RRBqbhqa8iuzbXRteRQJbhmh_gjOw,1482
+aws_requests_auth-0.3.2.dist-info/METADATA,sha256=u1iuZmts-RsUtiGwWgdmNdxGacSOmwVKGufEjqeXf8U,425
+aws_requests_auth-0.3.2.dist-info/RECORD,,
+aws_requests_auth-0.3.2.dist-info/WHEEL,sha256=I79qopWJ69l5T6wZayt9VUOMecGZGPzu2_icbRYWjpI,93
+aws_requests_auth-0.3.2.dist-info/top_level.txt,sha256=RjXfxP-5ABIpOaiyfKuspwlemZ4xapmhQYclhO41QbY,18
+aws_requests_auth/__init__.py,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+aws_requests_auth/__init__.pyc,,
+aws_requests_auth/aws_auth.py,sha256=1ekdZz4A6VKDClBinvrIlrpUiJM6RVh7cOWfiHp3tTA,8012
+aws_requests_auth/aws_auth.pyc,,
+aws_requests_auth/boto_utils.py,sha256=7Ebrh_V2sfoYTcWHPVUz5lmeiJ8eNnYIqCiKk0dwVe0,907
+aws_requests_auth/boto_utils.pyc,,

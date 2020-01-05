@@ -1,31 +1,31 @@
-"""Generating CloudFormation Templates."""
+"""Generating CloudFormation template."""
 
 from troposphere import (
-        GetAZs,
-        Output,
-        Parameter,
-        Ref,
-        Select,
-        Sub,
-        Tags,
-        Template,
-        GetAtt
-        )
+    GetAZs,
+    Output,
+    Parameter,
+    Ref,
+    Select,
+    Sub,
+    Tags,
+    Template,
+    GetAtt
+)
 
 from troposphere.ec2 import (
-        VPC,
-        InternetGateway,
-        NetworkAcl,
-        NetworkAclEntry,
-        Route,
-        RouteTable,
-        Subnet,
-        SubnetNetworkAclAssociation,
-        SubnetRouteTableAssociation,
-        VPCGatewayAttachment,
-        EIP,
-        NatGateway,
-        )
+    VPC,
+    InternetGateway,
+    NetworkAcl,
+    NetworkAclEntry,
+    Route,
+    RouteTable,
+    Subnet,
+    SubnetNetworkAclAssociation,
+    SubnetRouteTableAssociation,
+    VPCGatewayAttachment,
+    EIP,
+    NatGateway,
+)
 
 t = Template()
 
@@ -39,7 +39,7 @@ t.add_parameter(Parameter(
     MinValue=0,
     MaxValue=255,
     ConstraintDescription="Must be in the range [0-255]",
-    ))
+))
 
 t.add_resource(VPC(
     "VPC",
@@ -48,21 +48,21 @@ t.add_resource(VPC(
     CidrBlock=Sub('10.${ClassB}.0.0/16'),
     Tags=Tags(
         Name=Ref("AWS::StackName"),
-        )
-    ))
+    )
+))
 
 t.add_resource(InternetGateway(
     "InternetGateway",
     Tags=Tags(
         Name=Ref("AWS::StackName"),
-        )
-    ))
+    )
+))
 
 t.add_resource(VPCGatewayAttachment(
     "VPNGatewayAttachment",
     VpcId=Ref("VPC"),
     InternetGatewayId=Ref("InternetGateway")
-    ))
+))
 
 accessibility = ["Private", "Public"]
 names = ["A", "B", "C", "D"]
@@ -73,10 +73,16 @@ for a in accessibility:
         "{}RouteTable".format(a),
         VpcId=Ref("VPC"),
         Tags=Tags(
+            Name=Sub("${{AWS::StackName}} {}".format(a)),
+        )
+    ))
+    t.add_resource(NetworkAcl(
+        "{}NetworkAcl".format(a),
+        VpcId=Ref("VPC"),
+        Tags=Tags(
             Name=Sub("${{AWS::StackName}} {}".format(a))
-            )
-        ))
-
+        )
+    ))
     for n in names:
         t.add_resource(Subnet(
             "{}Subnet{}".format(a, n),
@@ -86,25 +92,21 @@ for a in accessibility:
             MapPublicIpOnLaunch="true" if a == "Public" else "false",
             Tags=Tags(
                 Name=Sub("${{AWS::StackName}} {} {}".format(a, n)),
-                )
-            ))
-
+            )
+        ))
         count += 1
         t.add_resource(SubnetRouteTableAssociation(
             "{}Subnet{}RouteTableAssociation".format(a, n),
             SubnetId=Ref("{}Subnet{}".format(a, n)),
             RouteTableId=Ref("{}RouteTable".format(a)),
-            ))
-
+        ))
         t.add_resource(SubnetNetworkAclAssociation(
             "{}Subnet{}NetworkAclAssociation".format(a, n),
             SubnetId=Ref("{}Subnet{}".format(a, n)),
             NetworkAclId=Ref("{}NetworkAcl".format(a)),
-            ))
+        ))
 
-        
 directions = ["Inbound", "Outbound"]
-
 for a in accessibility:
     for d in directions:
         t.add_resource(NetworkAclEntry(
@@ -115,15 +117,14 @@ for a in accessibility:
             Egress="true" if d == "Outbound" else "false",
             RuleAction="allow",
             CidrBlock="0.0.0.0/0",
-            ))
-
+        ))
 t.add_resource(Route(
     "RouteTablePublicInternetRoute",
     GatewayId=Ref("InternetGateway"),
     DestinationCidrBlock="0.0.0.0/0",
     RouteTableId=Ref("PublicRouteTable"),
 ))
-        
+
 t.add_resource(EIP(
     "EIP",
     Domain="VPC"
@@ -134,6 +135,7 @@ t.add_resource(NatGateway(
     AllocationId=GetAtt("EIP", "AllocationId"),
     SubnetId=Ref("PublicSubnetA")
 ))
+
 
 t.add_resource(Route(
     "RouteNat",
