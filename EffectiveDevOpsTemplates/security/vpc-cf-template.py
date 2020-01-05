@@ -95,6 +95,7 @@ for a in accessibility:
             SubnetId=Ref("{}Subnet{}".format(a, n)),
             RouteTableId=Ref("{}RouteTable".format(a)),
             ))
+
         t.add_resource(SubnetNetworkAclAssociation(
             "{}Subnet{}NetworkAclAssociation".format(a, n),
             SubnetId=Ref("{}Subnet{}".format(a, n)),
@@ -106,7 +107,7 @@ directions = ["Inbound", "Outbound"]
 
 for a in accessibility:
     for d in directions:
-        t.add_resource(NetworkAcl(
+        t.add_resource(NetworkAclEntry(
             "{}{}NetworkAclEntry".format(d, a),
             NetworkAclId=Ref("{}NetworkAcl".format(a)),
             RuleNumber="100",
@@ -147,4 +148,4 @@ t.add_output(Output(
     Value=Ref("VPC"),
 ))
 
-
+print(t.to_json())
