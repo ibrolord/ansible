@@ -32,6 +32,100 @@
         }
     },
     "Resources": {
+        "BucketPolicy": {
+            "Properties": {
+                "Bucket": {
+                    "Ref": "S3Bucket"
+                },
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:PutObject"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": [
+                                    "127311923021"
+                                ]
+                            },
+                            "Resource": [
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "S3Bucket"
+                                            },
+                                            "/AWSLogs/256218820153/*"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::S3::BucketPolicy"
+        },
+        "ELBHLatency": {
+            "Properties": {
+                "AlarmActions": [
+                    "arn:aws:sns:us-east-1:256218820153:alert-sms"
+                ],
+                "AlarmDescription": "Alarm if Latency too high",
+                "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+                "Dimensions": [
+                    {
+                        "Name": "LoadBalancerName",
+                        "Value": {
+                            "Ref": "LoadBalancer"
+                        }
+                    }
+                ],
+                "EvaluationPeriods": "5",
+                "InsufficientDataActions": [],
+                "MetricName": "Latency",
+                "Namespace": "AWS/ELB",
+                "OKActions": [
+                    "arn:aws:sns:us-east-1:256218820153:alert-sms"
+                ],
+                "Period": "60",
+                "Statistic": "Average",
+                "Threshold": "0.5"
+            },
+            "Type": "AWS::CloudWatch::Alarm"
+        },
+        "ELBHTTP5xxs": {
+            "Properties": {
+                "AlarmActions": [
+                    "arn:aws:sns:us-east-1:256218820153:alert-sms"
+                ],
+                "AlarmDescription": "Alarm if HTTP 5xxs too high",
+                "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+                "Dimensions": [
+                    {
+                        "Name": "LoadBalancerName",
+                        "Value": {
+                            "Ref": "LoadBalancer"
+                        }
+                    }
+                ],
+                "EvaluationPeriods": "3",
+                "InsufficientDataActions": [],
+                "MetricName": "HTTPCode_Backend_5XX",
+                "Namespace": "AWS/ELB",
+                "OKActions": [
+                    "arn:aws:sns:us-east-1:256218820153:alert-sms"
+                ],
+                "Period": "60",
+                "Statistic": "Average",
+                "Threshold": "30"
+            },
+            "Type": "AWS::CloudWatch::Alarm"
+        },
         "Listener": {
             "Properties": {
                 "DefaultActions": [
@@ -52,6 +146,18 @@
         },
         "LoadBalancer": {
             "Properties": {
+                "LoadBalancerAttributes": [
+                    {
+                        "Key": "access_logs.s3.enabled",
+                        "Value": "true"
+                    },
+                    {
+                        "Key": "access_logs.s3.bucket",
+                        "Value": {
+                            "Ref": "S3Bucket"
+                        }
+                    }
+                ],
                 "Scheme": "internet-facing",
                 "SecurityGroups": [
                     {
@@ -91,7 +197,7 @@
         },
         "LoadBalancerSecurityGroup": {
             "Properties": {
-                "GroupDescription": "Web load balancer security group",
+                "GroupDescription": "Web load balancer security group.",
                 "SecurityGroupIngress": [
                     {
                         "CidrIp": "0.0.0.0/0",
@@ -125,6 +231,10 @@
                 }
             },
             "Type": "AWS::EC2::SecurityGroup"
+        },
+        "S3Bucket": {
+            "DeletionPolicy": "Retain",
+            "Type": "AWS::S3::Bucket"
         },
         "TargetGroup": {
             "DependsOn": "LoadBalancer",

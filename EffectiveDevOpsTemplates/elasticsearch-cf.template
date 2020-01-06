@@ -1,0 +1,118 @@
+{
+    "Description": "Effective DevOps in AWS: Elasticsearch",
+    "Outputs": {
+        "DomainArn": {
+            "Description": "Domain Arn",
+            "Export": {
+                "Name": "LogsDomainArn"
+            },
+            "Value": {
+                "Fn::GetAtt": [
+                    "ElasticsearchCluster",
+                    "DomainArn"
+                ]
+            }
+        },
+        "Kibana": {
+            "Description": "Kibana url",
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "https://",
+                        {
+                            "Fn::GetAtt": [
+                                "ElasticsearchCluster",
+                                "DomainEndpoint"
+                            ]
+                        },
+                        "/_plugin/kibana/"
+                    ]
+                ]
+            }
+        }
+    },
+    "Parameters": {
+        "InstanceCount": {
+            "Default": "2",
+            "Description": "Number instances in the cluster",
+            "Type": "String"
+        },
+        "InstanceType": {
+            "AllowedValues": [
+                "t2.small.elasticsearch",
+                "t2.medium.elasticsearch",
+                "m4.large.elasticsearch"
+            ],
+            "Default": "t2.small.elasticsearch",
+            "Description": "instance type",
+            "Type": "String"
+        },
+        "VolumeSize": {
+            "Default": "10",
+            "Description": "Size in Gib of the EBS volumes",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "ElasticsearchCluster": {
+            "Properties": {
+                "AccessPolicies": {
+                    "Statement": [
+                        {
+                            "Action": "es:*",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": [
+                                    {
+                                        "Ref": "AWS::AccountId"
+                                    }
+                                ]
+                            },
+                            "Resource": "*"
+                        },
+                        {
+                            "Action": "es:*",
+                            "Condition": {
+                                "IpAddress": {
+                                    "aws:SourceIp": "142.118.124.239/32"
+                                }
+                            },
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": "*"
+                            },
+                            "Resource": "*"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "AdvancedOptions": {
+                    "indices.fielddata.cache.size": "",
+                    "rest.action.multi.allow_explicit_index": "true"
+                },
+                "DomainName": "logs",
+                "EBSOptions": {
+                    "EBSEnabled": "true",
+                    "Iops": 0,
+                    "VolumeSize": {
+                        "Ref": "VolumeSize"
+                    },
+                    "VolumeType": "gp2"
+                },
+                "ElasticsearchClusterConfig": {
+                    "DedicatedMasterEnabled": "false",
+                    "InstanceCount": {
+                        "Ref": "InstanceCount"
+                    },
+                    "InstanceType": {
+                        "Ref": "InstanceType"
+                    },
+                    "ZoneAwarenessEnabled": "false"
+                },
+                "ElasticsearchVersion": "5.3"
+            },
+            "Type": "AWS::Elasticsearch::Domain"
+        }
+    }
+}

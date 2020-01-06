@@ -1,0 +1,83 @@
+{
+    "Description": "Effective DevOps in AWS: Kinesis Firehose Stream",
+    "Resources": {
+        "FirehoseLogs": {
+            "Properties": {
+                "DeliveryStreamName": "FirehoseLogs",
+                "ElasticsearchDestinationConfiguration": {
+                    "BufferingHints": {
+                        "IntervalInSeconds": 60,
+                        "SizeInMBs": 1
+                    },
+                    "DomainARN": {
+                        "Fn::ImportValue": "LogsDomainArn"
+                    },
+                    "IndexName": "logs",
+                    "IndexRotationPeriod": "OneDay",
+                    "RetryOptions": {
+                        "DurationInSeconds": "300"
+                    },
+                    "RoleARN": {
+                        "Fn::GetAtt": [
+                            "FirehoseRole",
+                            "Arn"
+                        ]
+                    },
+                    "S3BackupMode": "AllDocuments",
+                    "S3Configuration": {
+                        "BucketARN": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "arn:aws:s3:::",
+                                    {
+                                        "Ref": "S3Bucket"
+                                    }
+                                ]
+                            ]
+                        },
+                        "BufferingHints": {
+                            "IntervalInSeconds": 300,
+                            "SizeInMBs": 5
+                        },
+                        "CompressionFormat": "UNCOMPRESSED",
+                        "Prefix": "firehose-log",
+                        "RoleARN": {
+                            "Fn::GetAtt": [
+                                "FirehoseRole",
+                                "Arn"
+                            ]
+                        }
+                    },
+                    "TypeName": "Logs"
+                }
+            },
+            "Type": "AWS::KinesisFirehose::DeliveryStream"
+        },
+        "FirehoseRole": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "firehose.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+                    "arn:aws:iam::aws:policy/AmazonESFullAccess"
+                ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "S3Bucket": {
+            "DeletionPolicy": "Retain",
+            "Type": "AWS::S3::Bucket"
+        }
+    }
+}

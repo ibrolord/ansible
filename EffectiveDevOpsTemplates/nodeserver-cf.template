@@ -239,7 +239,9 @@
                                 "logs:Create*",
                                 "logs:Put*",
                                 "logs:Describe*",
-                                "events:Put*"
+                                "events:Put*",
+                                "firehose:Put*",
+                                "autoscaling:DescribeAutoScalingInstances"
                             ],
                             "Effect": "Allow",
                             "Resource": [
