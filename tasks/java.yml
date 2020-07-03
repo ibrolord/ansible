@@ -11,6 +11,7 @@
   when: ansible_os_family == 'RedHat'
 
 - name: Debian - Ensure Java is installed
+  become: yes
   apt: name={{ java }} state={{java_state}} update_cache=yes
   when: ansible_os_family == 'Debian'
 
@@ -23,3 +24,4 @@
   command: /var/lib/dpkg/info/ca-certificates-java.postinst configure
   when: ansible_distribution == 'Ubuntu' and open_jdk.rc == 0
   changed_when: false
+  become: yes

@@ -1,6 +1,7 @@
 # ansible-elasticsearch
 
-Ansible role for 2.x Elasticsearch.  Currently this works on Debian and RedHat based linux systems.  Tested platforms are:
+Ansible role for 1.x Elasticsearch.  Currently this works on Debian and RedHat based linux systems.  Tested platforms are:
+The newer 
 
 * Ubuntu 14.04/16.04
 * Debian 8
@@ -9,6 +10,16 @@ Ansible role for 2.x Elasticsearch.  Currently this works on Debian and RedHat b
 The latest Elasticsearch versions of 2.x are actively tested.  **Only Ansible versions > 2.1.2 are supported.**.
 
 ## Usage
+
+#### This installs ES on Master, Data, and Client nodes
+ansible version should be $(ansible --version) = ansible 2.7.0
+This playbook is not very backwards compatible with newer ansible versions
+
+
+ansible-playbook -i elasticsearch.cluster/inventory elasticsearch.cluster/site.yaml
+
+
+### Official Documentation
 
 Create your Ansible playbook with your own tasks, and include the role elasticsearch.  You will have to have this repository accessible within the context of playbook, e.g.
 
